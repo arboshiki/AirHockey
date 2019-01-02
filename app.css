@@ -1,0 +1,97 @@
+*{
+    box-sizing: border-box;
+}
+.air-hockey {
+    position: relative;
+    width: 60vh;
+    height: 90vh;
+    margin: 0 auto;
+    overflow: hidden;
+    background-color: #00a564;
+}
+
+.air-hockey .ball {
+    position: absolute;
+    content: " ";
+    width: 6vh;
+    height: 6vh;
+    background-color: #fff;
+    border-radius: 50%;
+    left: 50%;
+    top: 50%;
+    margin-left: -3vh;
+    margin-top: -3vh;
+}
+
+.air-hockey:before {
+    position: absolute;
+    content: '';
+    width: 100%;
+    height: 0.4vh;
+    margin-top: -0.2vh;
+    background-color: #fff;
+    top: 50%;
+}
+
+.air-hockey:after,
+.air-hockey .their-side,
+.air-hockey .our-side {
+    position: absolute;
+    width: 30vh;
+    height: 30vh;
+    border: 0.4vh solid #fff;
+    border-radius: 50%;
+}
+
+.air-hockey:after {
+    content: "";
+    left: 50%;
+    top: 50%;
+    margin-left: -15vh;
+    margin-top: -15vh;
+}
+
+.air-hockey .their-side {
+    left: 50%;
+    margin-left: -15vh;
+    margin-top: -15vh;
+}
+
+.air-hockey .our-side {
+    left: 50%;
+    margin-left: -15vh;
+    top: 100%;
+    margin-top: -15vh;
+}
+
+.air-hockey .their-control,
+.air-hockey .our-control {
+    position: absolute;
+    content: " ";
+    width: 8vh;
+    height: 8vh;
+    background-color: #fff;
+    border-radius: 50%;
+    z-index: 200;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
+                                     supported by Chrome and Opera */
+}
+
+.air-hockey .their-control {
+    left: 50%;
+    margin-left: -4vh;
+}
+
+.air-hockey .our-control {
+    left: 50%;
+    bottom: 0;
+    /*margin-left: -4vh;*/
+}
+
