@@ -1,11 +1,30 @@
 class AirHockey {
   constructor(el) {
     this.el = el;
+    this.ball = el.querySelector('.ball');
     this.ourControl = el.querySelector('.our-control');
     this.ourControl.addEventListener('mousedown', this.onMouseDown.bind(this));
     document.addEventListener('mousemove', this.onMouseMove.bind(this));
     document.addEventListener('mouseup', this.onMouseUp.bind(this));
     this.mouseDown = false;
+    this.ballSpeed = 10;
+    //Angle in degrees
+    this.ballAngle = Math.ceil(Math.random() * 360);
+    // this.ballAngle = 192;
+    this.ballAngleRad = this.ballAngle *  Math.PI / 180;
+
+    if (this.ballAngle <= 90){
+
+    } else if (this.ballAngle <= 180){
+
+    } else if (this.ballAngle <= 270){
+
+    } else {
+
+    }
+
+    console.log(this.ballAngle);
+    this.initBallMovement();
   }
 
   onMouseDown(ev) {
@@ -49,6 +68,37 @@ class AirHockey {
   onMouseUp() {
     this.mouseDown = false;
     console.log("mouse up");
+  }
+
+  initBallMovement(){
+    let x = 0,
+      y = 0;
+    setInterval(() => {
+      if (this.ballAngle > 270 || this.ballAngle <= 90){
+        x++;
+      } else {
+        x--;
+      }
+      y = x* Math.tan(this.ballAngleRad);
+      this.setPosition(this.ball, x, y);
+    }, 1000/30);
+  }
+
+  setPosition(el, x, y){
+    const centerLeft = this.el.offsetWidth/2,
+      centerTop = this.el.offsetHeight/2;
+
+    const finalX = centerLeft + x;
+    let finalY;
+    finalY = centerTop - y;
+    // if (this.ballAngle < 180) {
+    //   finalY = centerTop - y;
+    // } else {
+    //   finalY = centerTop + y;
+    // }
+
+    el.style.left = `${finalX}px`;
+    el.style.top = `${finalY}px`;
   }
 }
 
