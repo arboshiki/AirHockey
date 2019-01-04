@@ -8,18 +8,20 @@ class AirHockey {
     document.addEventListener('mouseup', this.onMouseUp.bind(this));
     this.mouseDown = false;
     // Pixels per second
-    this.ballSpeed = 200;
+    this.ballSpeed = 300;
     this.fps = 60;
     //Angle in degrees
-    this.ballAngle = Math.ceil(Math.random() * 360);
-    // this.ballAngle = 192;
-    this.ballAngleRad = this.ballAngle *  Math.PI / 180;
+    this.ballAngle = null;
+    // Angle in radians
+    this.ballAngleRad = null;
 
-    if (this.ballAngle <= 90){
+    this.setBallAngle(Math.ceil(Math.random() * 360));
 
-    } else if (this.ballAngle <= 180){
+    if (this.ballAngle <= 90) {
 
-    } else if (this.ballAngle <= 270){
+    } else if (this.ballAngle <= 180) {
+
+    } else if (this.ballAngle <= 270) {
 
     } else {
 
@@ -27,6 +29,13 @@ class AirHockey {
 
     console.log(this.ballAngle);
     this.initBallMovement();
+  }
+
+  setBallAngle(angle) {
+    //Angle in degrees
+    this.ballAngle = angle;
+    // this.ballAngle = 192;
+    this.ballAngleRad = this.ballAngle * Math.PI / 180;
   }
 
   onMouseDown(ev) {
@@ -72,7 +81,7 @@ class AirHockey {
     console.log("mouse up");
   }
 
-  initBallMovement(){
+  initBallMovement() {
     let x = 0,
       y = 0;
 
@@ -82,19 +91,74 @@ class AirHockey {
       y += distance * Math.sin(this.ballAngleRad);
 
       this.setPosition(this.ball, x, y);
-    }, 1000/this.fps);
+    }, 1000 / this.fps);
   }
 
-  setPosition(el, x, y){
-    const centerLeft = this.el.offsetWidth/2,
-      centerTop = this.el.offsetHeight/2;
+  getCanvasSize() {
+    return {
+      w: this.el.offsetWidth,
+      h: this.el.offsetHeight
+    };
+  }
+
+  getBallSize() {
+    return {
+      w: this.ball.offsetWidth,
+      h: this.ball.offsetHeight
+    };
+  }
+
+  setPosition(el, x, y) {
+    const {w: canvasW, h: canvasH} = this.getCanvasSize();
+    const {w: ballW, h: ballH} = this.getBallSize();
+
+    const centerLeft = canvasW / 2,
+      centerTop = canvasH / 2;
 
     const finalX = centerLeft + x;
-    let finalY;
-    finalY = centerTop - y;
+    const finalY = centerTop - y;
+    // console.log(this.ball.getBoundingClientRect());
+    // console.log(finalX, finalY);
+
+    // this.leaveFootPrint(finalX, finalY);
+
+    if (finalX + ballW/2 >= canvasW) {
+      if (this.ballAngle < 90) {
+        this.setBallAngle(180 - this.ballAngle);
+      } else {
+        this.setBallAngle(180 + (360 - this.ballAngle))
+      }
+    } else if (finalY + ballH/2 >= canvasH){
+      this.setBallAngle(360 - this.ballAngle);
+    } else if (finalX - ballW/2 <= 0){
+      if (this.ballAngle < 180){
+        this.setBallAngle(180 - this.ballAngle);
+      } else {
+        this.setBallAngle(360 - (this.ballAngle - 180));
+      }
+    } else if (finalY - ballH/2 <= 0){
+      if (this.ballAngle < 90){
+        this.setBallAngle(360 - this.ballAngle);
+      } else {
+        this.setBallAngle(90 + this.ballAngle);
+      }
+    }
 
     el.style.left = `${finalX}px`;
     el.style.top = `${finalY}px`;
+  }
+
+
+  leaveFootPrint(x, y){
+    const tmp = document.createElement('div');
+    tmp.style.position = 'absolute';
+    tmp.style.width = '2px';
+    tmp.style.height = '2px';
+    tmp.style.borderRadius = '50%';
+    tmp.style.backgroundColor = 'red';
+    tmp.style.left = `${x}px`;
+    tmp.style.top = `${y}px`;
+    this.el.appendChild(tmp);
   }
 }
 
