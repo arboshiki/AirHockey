@@ -7,7 +7,9 @@ class AirHockey {
     document.addEventListener('mousemove', this.onMouseMove.bind(this));
     document.addEventListener('mouseup', this.onMouseUp.bind(this));
     this.mouseDown = false;
-    this.ballSpeed = 10;
+    // Pixels per second
+    this.ballSpeed = 200;
+    this.fps = 60;
     //Angle in degrees
     this.ballAngle = Math.ceil(Math.random() * 360);
     // this.ballAngle = 192;
@@ -73,15 +75,14 @@ class AirHockey {
   initBallMovement(){
     let x = 0,
       y = 0;
+
     setInterval(() => {
-      if (this.ballAngle > 270 || this.ballAngle <= 90){
-        x++;
-      } else {
-        x--;
-      }
-      y = x* Math.tan(this.ballAngleRad);
+      let distance = this.ballSpeed / this.fps;
+      x += distance * Math.cos(this.ballAngleRad);
+      y += distance * Math.sin(this.ballAngleRad);
+
       this.setPosition(this.ball, x, y);
-    }, 1000/30);
+    }, 1000/this.fps);
   }
 
   setPosition(el, x, y){
@@ -91,11 +92,6 @@ class AirHockey {
     const finalX = centerLeft + x;
     let finalY;
     finalY = centerTop - y;
-    // if (this.ballAngle < 180) {
-    //   finalY = centerTop - y;
-    // } else {
-    //   finalY = centerTop + y;
-    // }
 
     el.style.left = `${finalX}px`;
     el.style.top = `${finalY}px`;
