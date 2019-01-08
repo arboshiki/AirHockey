@@ -3,10 +3,14 @@ class AirHockey {
     this.el = el;
     this.ball = el.querySelector('.ball');
     this.ourControl = el.querySelector('.our-control');
+    this.theirGate = el.querySelector('.their-gate');
+    this.ourGate = el.querySelector('.our-gate');
+
     this.ourControl.addEventListener('mousedown', this.onMouseDown.bind(this));
     document.addEventListener('mousemove', this.onMouseMove.bind(this));
     document.addEventListener('mouseup', this.onMouseUp.bind(this));
     this.mouseDown = false;
+    this.ballRadius = this.ball.offsetWidth / 2;
     // Pixels per second
     this.ballSpeed = 300;
     this.fps = 60;
@@ -15,17 +19,8 @@ class AirHockey {
     // Angle in radians
     this.ballAngleRad = null;
 
-    this.setBallAngle(Math.ceil(Math.random() * 360));
-
-    if (this.ballAngle <= 90) {
-
-    } else if (this.ballAngle <= 180) {
-
-    } else if (this.ballAngle <= 270) {
-
-    } else {
-
-    }
+    // this.setBallAngle(Math.ceil(Math.random() * 360));
+    this.setBallAngle(73);
 
     console.log(this.ballAngle);
     this.initBallMovement();
@@ -35,7 +30,15 @@ class AirHockey {
     //Angle in degrees
     this.ballAngle = angle;
     // this.ballAngle = 192;
-    this.ballAngleRad = this.ballAngle * Math.PI / 180;
+    this.ballAngleRad = AirHockey.degreeToRadian(this.ballAngle);
+  }
+
+  static degreeToRadian(angle){
+    return angle * Math.PI / 180
+  }
+
+  static radianToDegree(angle){
+    return angle * 180/ Math.PI;
   }
 
   onMouseDown(ev) {
@@ -85,7 +88,7 @@ class AirHockey {
     let x = 0,
       y = 0;
 
-    setInterval(() => {
+    this.ballInterval = setInterval(() => {
       let distance = this.ballSpeed / this.fps;
       x += distance * Math.cos(this.ballAngleRad);
       y += distance * Math.sin(this.ballAngleRad);
@@ -110,7 +113,6 @@ class AirHockey {
 
   setPosition(el, x, y) {
     const {w: canvasW, h: canvasH} = this.getCanvasSize();
-    const {w: ballW, h: ballH} = this.getBallSize();
 
     const centerLeft = canvasW / 2,
       centerTop = canvasH / 2;
@@ -120,24 +122,63 @@ class AirHockey {
     // console.log(this.ball.getBoundingClientRect());
     // console.log(finalX, finalY);
 
-    // this.leaveFootPrint(finalX, finalY);
 
-    if (finalX + ballW/2 >= canvasW) {
+    if (finalY + this.ballRadius < 0) {
+      console.log("Ball is in their gate");
+      clearInterval(this.ballInterval);
+      return;
+    }
+
+    this.leaveFootPrint(finalX, finalY);
+
+    // Change the angle when ball touches the canvas edge
+    // Check for RIGHT edge
+    if (finalX + this.ballRadius >= canvasW) {
+      console.log("Hit RIGHT edge");
       if (this.ballAngle < 90) {
         this.setBallAngle(180 - this.ballAngle);
       } else {
         this.setBallAngle(180 + (360 - this.ballAngle))
       }
-    } else if (finalY + ballH/2 >= canvasH){
+    }
+    // Check for BOTTOM edge
+    else if (finalY + this.ballRadius >= canvasH) {
+      console.log("Hit BOTTOM edge");
       this.setBallAngle(360 - this.ballAngle);
-    } else if (finalX - ballW/2 <= 0){
-      if (this.ballAngle < 180){
+    }
+    // Check for LEFT edge
+    else if (finalX - this.ballRadius <= 0) {
+      console.log("Hit LEFT edge");
+      if (this.ballAngle < 180) {
         this.setBallAngle(180 - this.ballAngle);
       } else {
         this.setBallAngle(360 - (this.ballAngle - 180));
       }
-    } else if (finalY - ballH/2 <= 0){
-      if (this.ballAngle < 90){
+    }
+    // Check for TOP edge
+    else if (finalY - this.ballRadius <= 0) {
+      console.log("Hit TOP edge");
+      const {leftEdge: theirGateLeft, rightEdge: theirGateRight} = this.getTheirGatePosition();
+      if (finalX - this.ballRadius > theirGateLeft && finalX + this.ballRadius < theirGateRight || finalY < 0) {
+        console.log("Let it go")
+      } else if (finalY - this.ballRadius <= 0) {
+        let distanceToLeft = AirHockey.getDistance(finalX, finalY, theirGateLeft, 0);
+        let distanceToRight = AirHockey.getDistance(finalX, finalY, theirGateRight, 0);
+
+        //If we hit the corner of the gate on the LEFT side
+        if (distanceToLeft <= this.ballRadius){
+          let alpha = AirHockey.radianToDegree(Math.atan2(finalY, finalX - theirGateLeft));
+          let beta = (180 - this.ballAngle) - alpha;
+          this.setBallAngle(360 - (alpha - beta));
+        }
+        //If we hit the corner of the gate on the RIGHT side
+        else if (distanceToRight < this.ballRadius){
+          let alpha = AirHockey.radianToDegree(Math.atan2(finalY, theirGateRight - finalX));
+          let beta = this.ballAngle - alpha;
+          this.setBallAngle(180 + (alpha - beta));
+        }
+
+      } else if (this.ballAngle < 90) {
         this.setBallAngle(360 - this.ballAngle);
       } else {
         this.setBallAngle(90 + this.ballAngle);
@@ -148,8 +189,21 @@ class AirHockey {
     el.style.top = `${finalY}px`;
   }
 
+  getTheirGatePosition() {
+    const stadiumRect = this.el.getBoundingClientRect();
+    const gateRect = this.theirGate.getBoundingClientRect();
+    return {
+      leftEdge: gateRect.left - stadiumRect.left,
+      rightEdge: gateRect.left - stadiumRect.left + gateRect.width
+    }
+  }
 
-  leaveFootPrint(x, y){
+  static getDistance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.abs(x1 - x2) * Math.abs(x1 - x2) + Math.abs(y1 - y2) * Math.abs(y1 - y2))
+  }
+
+
+  leaveFootPrint(x, y) {
     const tmp = document.createElement('div');
     tmp.style.position = 'absolute';
     tmp.style.width = '2px';

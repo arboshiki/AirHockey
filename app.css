@@ -1,6 +1,10 @@
 *{
     box-sizing: border-box;
 }
+
+body{
+    padding: 60px;
+}
 .air-hockey {
     position: relative;
     width: 60vh;
@@ -34,8 +38,8 @@
 }
 
 .air-hockey:after,
-.air-hockey .their-side,
-.air-hockey .our-side {
+.air-hockey .their-gate,
+.air-hockey .our-gate {
     position: absolute;
     width: 30vh;
     height: 30vh;
@@ -51,13 +55,13 @@
     margin-top: -15vh;
 }
 
-.air-hockey .their-side {
+.air-hockey .their-gate {
     left: 50%;
     margin-left: -15vh;
     margin-top: -15vh;
 }
 
-.air-hockey .our-side {
+.air-hockey .our-gate {
     left: 50%;
     margin-left: -15vh;
     top: 100%;
